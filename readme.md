@@ -19,7 +19,7 @@ After these two failures, I decided to start from scratch based off Joe Scotto�
 
 ### Bill of Materials
 
-| Part                                                                                                                                                                                 | Qty | Notes                                                                                                                                                                                                                     |
+| Part       | Qty | Notes         |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [Waveshare RP2040-Zero](https://www.waveshare.com/rp2040-zero.htm?srsltid=AfmBOorBt2v1roA5Ej6xlDoV228nK-XgI2wQrG1-7OLUrxRTVEoYe3wA) or similar third-party board                     | 1   | RP2040, wired only, physical boot loader & reset buttons on board                                                                                                                                                         |
 | [Cirque Glidepoint Trackpad](https://www.mouser.com/en/ProductDetail/Cirque/TM035035-2024-003?qs=sGAEpiMZZMu3sxpa5v1qrmePy6bg6o9msS9wwvLw9t0%3D), 35mm circular, curved overlay, SPI | 1   | Be sure to get the version with the curved overlay and that there's a resistor at R1 for **SPI** not I2C (required by this build). The case is designed for the version with the curved overlay and not the flat overlay. |
@@ -51,8 +51,3 @@ After these two failures, I decided to start from scratch based off Joe Scotto�
 - The RP2040-Zero only has one ground pin so the 3 ground wires from the trackpad and the two momentary buttons need to be tied together and soldered to the ground pin on the RP20240.
 - "CS" and "SS" are the same signal — different vendors label it differently.
 - The trackpad's bus-mode jumper (R1, 470kΩ) must be populated for SPI. No resistor there means the board is in I2C mode and the firmware in this repo won’t work. Trackpad came pre-populated with the resistor so it’s in SPI mode. If you need to use I2C,  you’ll have to remove the resistor and rewrite the code.
-
-
-
-
-
