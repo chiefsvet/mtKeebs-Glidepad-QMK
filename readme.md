@@ -1,92 +1,57 @@
-# Cirque Trackpad RP2040 (handwired)
+## mtKeebs Glidepad
 
-A hand-wired USB-C trackpad built around a Waveshare RP2040 board and a
-35mm Cirque GlidePoint (Pinnacle 1CA027, SPI) circle trackpad module, with
-two momentary hardware buttons as a fallback for left/right click.
+The mtKeebs Glidepad is my version of the ScottoCirque trackpad. Check out Joe Scotto's [YouTube video](https://www.youtube.com/watch?v=AhoCn2nf1GU) and his [website](https://scottokeebs.com/blogs/macropads/scottocirque) for more information. He calls himself "the handwiring guy" because the majority of his builds are hand-wired, although he's been doing more PCB builds, too. If you're new to electronics and custom mechanical keyboards like me, check out his YT channel. I learned 99% of what I know from his channel.
 
-* MCU: Waveshare RP2040 (Zero-style board; USB-C wired directly to a host,
-  no wireless)
-* Pointing device: Cirque Pinnacle / GlidePoint, 35mm, SPI mode
-* Two direct-wired momentary switches for left/right click
+The ScottoCirque uses a 40 mm trackpad with a flat overlay, but I wanted to use a curved overlay. The 40 mm size was on backorder everywhere I've looked, so I purchased the 35 mm version. I originally put the trackpad into a custom hand-wired mechanical keyboard that I was already in the process of designing/building at the time his video came out that was using CircuitPython, but I was having a lot of issues with implementation of the trackpad driver. I was able to get the cursor to move fairly accurately, but tap to click was incredibly unreliable (registering only 1 in 10 taps) and I couldn’t get scrolling to work. I also tried using ZMK firmware for the trackpad, but was having a lot of issues with tracking directionality and again I couldn’t get scrolling to work. I will eventually go back and try ZMK again since I really prefer to have a wireless option for connecting keyboards to my computer.
 
-## Status
+After these two failures, I decided to start from scratch based off Joe Scotto’s version using a wired build and QMK. Like he states in his video about his version, the design here is just for testing purposes. It will eventually be built into a custom keyboard with better buttons for left and right click. 
 
-Confirmed working as of this build:
-- Cursor tracking, correct axis orientation (180-degree rotation applied
-  in `config.h` -- adjust if you rebuild for a different physical mount)
-- Tap-to-click (left click)
-- Circular/perimeter scroll (touch the outer ring and drag along the edge)
-- Hardware left/right click buttons (GP6/GP7) are wired into the firmware
-  but as of this writing haven't been physically wired into the build yet
+**Some changes in my build compared to the ScottoCirque:**
+1. 35 mm trackpad with a curved overlay
+2. I had a Waveshare RP2040 on hand so I used that board instead
+3. I didn’t want screws visible form the top so I designed my own case with screws inserting from the bottom
+4. There are two small holes over the boot and reset buttons for access while the case is closed. The RP2040 is mounted upside down so the buttons face the bottom of the case.
+4. Since I was having trouble with tap to click previously, I added two momentary push buttons to use as backup for left and right click. Turns out that was a wise choice because I still struggle with tap to click. I’ll redesign them when this goes into a keyboard. 
+5. I still can’t get scrolling to work just using my finger on the trackpad, so I had Claude.ai create custom code for the scrolling behavior and made the right click button have a press and hold feature to get the scroll feature to work. If I still can't scrolling to work without it, I'll probably add a third (center) button that I can press with my thumb and use my index finger to scroll on the trackpad.
 
-## Wiring
 
-| Signal              | RP2040 pin | Goes to                          |
-| -------------------- | ---------- | --------------------------------- |
-| SPI SCK               | GP2        | Trackpad SCK                      |
-| SPI MOSI               | GP3        | Trackpad MOSI (DIN)                |
-| SPI MISO               | GP4        | Trackpad MISO (DOUT)               |
-| Chip Select            | GP5        | Trackpad CS/SS                    |
-| Left click switch      | GP6        | One leg here, other leg -> GND     |
-| Right click switch     | GP7        | One leg here, other leg -> GND     |
-| 3.3V                   | 3V3        | Trackpad VCC                      |
-| GND                    | GND        | Trackpad GND, both switches' other leg |
-| DR (Data Ready)         | *not connected* | See note below                    |
+### Bill of Materials
 
-Notes:
-- **DR is intentionally left unconnected.** The Cirque Pinnacle has a
-  hardware Data-Ready pin meant to interrupt the host when new touch data
-  is available, but QMK's `cirque_pinnacle_spi` driver doesn't use it —
-  instead it polls the sensor over SPI on a timer (every 10ms by default,
-  via `POINTING_DEVICE_TASK_THROTTLE_MS`) and checks a *software*
-  data-ready bit in a status register. Since the Pinnacle only updates its
-  position data every 10ms internally regardless, polling gets you the
-  same responsiveness without the extra wire. If your specific breakout
-  board's datasheet says DR needs to be tied to a particular level to
-  behave, follow that — but on most Cirque circle trackpad FFC breakouts
-  it's safe to leave floating/unconnected in this polling setup.
-- The Cirque module runs at 3.3V logic — the RP2040's GPIO/3V3 rail matches,
-  so no level shifting is needed.
-- The two buttons use QMK's `direct` matrix pins, so no diodes are required
-  — just wire each switch between its GPIO and GND. Internal pull-ups are
-  enabled automatically.
-- If your board's silkscreen GPIO numbers differ from the ones above (very
-  possible on the compact RP2040-Zero form factor), edit the pin defines in
-  `config.h` to match how you actually soldered it — the numbers here are a
-  starting point, not a hard requirement.
+| Part                                                                                                                                                                                 | Qty | Notes                                                                                                                                                                                                                     |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Waveshare RP2040-Zero](https://www.waveshare.com/rp2040-zero.htm?srsltid=AfmBOorBt2v1roA5Ej6xlDoV228nK-XgI2wQrG1-7OLUrxRTVEoYe3wA) or similar third-party board                     | 1   | RP2040, wired only, physical boot loader & reset buttons on board                                                                                                                                                         |
+| [Cirque Glidepoint Trackpad](https://www.mouser.com/en/ProductDetail/Cirque/TM035035-2024-003?qs=sGAEpiMZZMu3sxpa5v1qrmePy6bg6o9msS9wwvLw9t0%3D), 35mm circular, curved overlay, SPI | 1   | Be sure to get the version with the curved overlay and that there's a resistor at R1 for **SPI** not I2C (required by this build). The case is designed for the version with the curved overlay and not the flat overlay. |
+| [Tactile Push Button Micro Momentary Switches](https://www.amazon.com/dp/B09R3ZPWJ7?ref=ppx_yo2ov_dt_b_fed_asin_title&th=1), 6x6x6 mm, 2-pin                                         | 4   | For left & right click buttons, soft\\\_off power, and reset                                                                                                                                                              |
+| [M2 Heat Set Insert](https://www.amazon.com/dp/B0CS6XJSSL?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_2&th=1)                                                                         | 4   | -                                                                                                                                                                                                                         |
+| [M2 Phillips Flathead Screws](https://www.amazon.com/dp/B082XXW76M?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_7&th=1), 6mm                                                           | 4   | -                                                                                                                                                                                                                         |
+| [3M Double-Sided Tape](https://www.amazon.com/dp/B0DJNVVPY1?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_1&th=1), 1/2-inch  | 1   | Be sure yours is compatible with electronics                                                                                                                                                                              |
+| [28 AWG Stranded Hook Up Wire](https://www.amazon.com/dp/B073RDKRBX?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_8&th=1)                                                               | *   | Various colors & lengths                                                                                                                                                                                                  |
+| 3M double-sided tape | 1 small piece  | Be sure your tap is safe for electronics. |
+| Soldering iron & solder                                                                                                                                                              | 1   | -                                                                                                                                                                                                                         |
 
-## Building
 
-From the root of your `qmk_firmware` checkout, copy this
-`handwired/cirque_trackpad_rp2040` folder into `keyboards/handwired/`, then:
+### Wiring Guide
 
-```sh
-qmk compile -kb handwired/cirque_trackpad_rp2040 -km default
-```
+| Signal               | RP2040             | Connects to...
+| -------------------- | ------------------ | ------------------------------------------ |
+| SPI SCK              | GP2                | SCK on trackpad                            |
+| SPI MOSI             | GP3                | SI on trackpad                             |
+| SPI MISO             | GP4                | SO on trackpad                             |
+| Chip Select          | GP5                | SS (same as CS for other manufacturers)    |
+| 3.3V                 | 3v3                | VDD                                        |
+| GND                  | GND                | GND                                        |
+| DR (Data Ready)      | *not connected*    | Not needed in this build                   |
+| Left button click    | GP6                | One pin of left momentary button           |
+| Left button ground   | GND                | Other pin of left momentary button         |
+| Right button click   | GP7                | One pin of right momentary button          |
+| Right button ground  | GND                | Other pin of right momentary button        |
 
-This produces a `.uf2` file.
+**NOTES**
+- The RP2040-Zero only has one ground pin so the 3 ground wires from the trackpad and the two momentary buttons need to be tied together and soldered to the ground pin on the RP20240.
+- "CS" and "SS" are the same signal — different vendors label it differently.
+- The trackpad's bus-mode jumper (R1, 470kΩ) must be populated for SPI. No resistor there means the board is in I2C mode and the firmware in this repo won’t work. Trackpad came pre-populated with the resistor so it’s in SPI mode. If you need to use I2C,  you’ll have to remove the resistor and rewrite the code.
 
-## Flashing
 
-1. Hold the **BOOT/BOOTSEL** button on the RP2040 board, plug it into your
-   computer via USB-C, then release BOOT. It will mount as a USB mass
-   storage drive (e.g. `RPI-RP2`).
-2. Copy the compiled `.uf2` file onto that drive. The board will reboot
-   automatically running the new firmware.
 
-You can also use `qmk flash -kb handwired/cirque_trackpad_rp2040 -km default`
-while the board is in bootloader mode.
 
-## First bring-up tips
 
-- If the cursor doesn't move at all, double check the SPI wiring (SCK/MOSI/
-  MISO/CS) and that `CIRQUE_PINNACLE_SPI_CS_PIN` in `config.h` matches the
-  pin you wired CS to.
-- If the cursor moves but in the wrong direction, or diagonally instead of
-  straight, try the `POINTING_DEVICE_ROTATION_*` / `POINTING_DEVICE_INVERT_*`
-  defines commented out in `config.h`.
-- Temporarily add `#define CIRQUE_PINNACLE_DEBUG` to `config.h` and open the
-  QMK console (`qmk console`) to see raw driver output while debugging.
-- The two hardware buttons work independently of the trackpad sensor, so if
-  the Cirque module ever isn't detected/initializing correctly, left/right
-  click on GP6/GP7 will still function as a fallback, per your requirement.
