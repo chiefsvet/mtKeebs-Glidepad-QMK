@@ -16,6 +16,7 @@ After these two failures, I decided to start from scratch based off Joe Scottoâ€
 4. Since I was having trouble with tap to click previously, I added two momentary push buttons to use as backup for left and right click. Turns out that was a wise choice because I still struggle with tap to click. Iâ€™ll redesign them when this goes into a keyboard. 
 5. I still canâ€™t get scrolling to work just using my finger on the trackpad, so I had Claude.ai create custom code for the scrolling behavior and made the right click button have a press and hold feature to get the scroll feature to work. If I still can't scrolling to work without it, I'll probably add a third (center) button that I can press with my thumb and use my index finger to scroll on the trackpad.
 
+---
 
 ### Bill of Materials
 
@@ -30,8 +31,11 @@ After these two failures, I decided to start from scratch based off Joe Scottoâ€
 | [28 AWG Stranded Hook Up Wire](https://www.amazon.com/dp/B073RDKRBX?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_8&th=1)   | *   | Various colors & lengths                                                                                                                                                                                                  |
 | Soldering iron & solder                                                                                                                                                              | 1   | -                                                                                                                                                                                                                         |
 
+---
 
 ### Wiring Guide
+
+<img src="Images/mtKeebs Glidepad internals.jpg" alt="Image the top and bottom sides of the Glidepad" width="500" align="center">
 
 | Signal               | RP2040             | Connects to...
 | -------------------- | ------------------ | ------------------------------------------ |
