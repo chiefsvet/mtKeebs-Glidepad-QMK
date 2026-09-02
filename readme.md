@@ -52,6 +52,6 @@ After these two failures, I decided to start from scratch based off Joe Scotto�
 | Right button ground  | GND                | Other pin of right momentary button        |
 
 **NOTES**
-- The RP2040-Zero only has one ground pin so the 3 ground wires from the trackpad and the two momentary buttons need to be tied together and soldered to the ground pin on the RP20240.
+- The RP2040-Zero only has one ground pin so the ground wire from the trackpad and the ground wires from the two momentary buttons need to be tied together and soldered to the ground pin on the RP20240.
 - "CS" and "SS" are the same signal — different vendors label it differently.
-- The trackpad's bus-mode jumper (R1, 470kΩ) must be populated for SPI. No resistor there means the board is in I2C mode and the firmware in this repo won’t work. Trackpad came pre-populated with the resistor so it’s in SPI mode. If you need to use I2C,  you’ll have to remove the resistor and rewrite the code.
+- The trackpad's bus-mode jumper (R1, 470kΩ) must be populated for SPI. No resistor there means the board is in I2C mode and the firmware in this repo won’t work. Trackpad comes pre-populated with the resistor so it’s in SPI mode. If you need to use I2C for your build, you’ll need to remove the resistor and rewrite the code.
